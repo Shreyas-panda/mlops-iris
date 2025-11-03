@@ -1,16 +1,33 @@
+# train_model.py
+# Creates a tiny dummy model with a .predict() method and saves it as model.pkl
 import pickle
-from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
 
-data = load_iris()
-X, y = data.data, data.target
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-pipe = make_pipeline(StandardScaler(), LogisticRegression(max_iter=200))
-pipe.fit(X_train, y_train)
-print("Train:", pipe.score(X_train, y_train), "Test:", pipe.score(X_test, y_test))
-with open("model.pkl", "wb") as f:
-    pickle.dump(pipe, f)
-print("Saved model.pkl")
+class DummyModel:
+    """
+    Dummy classifier:
+    - It returns class 0 if sum(features) < threshold
+    - class 1 if sum(features) >= threshold but < 2*threshold
+    - else class 2.
+    This is just a stub to demonstrate pipeline behavior.
+    """
+    def __init__(self, threshold=5.0):
+        self.threshold = threshold
+
+    def predict(self, X):
+        # X expected as list of list-like numeric features
+        preds = []
+        for row in X:
+            s = sum(row)
+            if s < self.threshold:
+                preds.append(0)
+            elif s < 2 * self.threshold:
+                preds.append(1)
+            else:
+                preds.append(2)
+        return preds
+
+if __name__ == "__main__":
+    model = DummyModel(threshold=5.0)
+    with open("model.pkl", "wb") as f:
+        pickle.dump(model, f)
+    print("Dummy model saved to model.pkl")
